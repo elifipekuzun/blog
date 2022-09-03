@@ -4,12 +4,17 @@ import styles from './post-content.module.css';
 import { PostHeader } from './post-header';
 import { PostComponent } from '../../../data/models/Post';
 import Image, { ImageProps } from 'next/image';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atomDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import atomDark from 'react-syntax-highlighter/dist/cjs/styles/prism/atom-dark';
+import js from 'react-syntax-highlighter/dist/cjs/languages/prism/javascript';
+import css from 'react-syntax-highlighter/dist/cjs/languages/prism/css';
 
 interface Renderer {
   [nodeType: string]: ElementType | undefined;
 }
+
+SyntaxHighlighter.registerLanguage('js', js);
+SyntaxHighlighter.registerLanguage('css', css);
 
 export const PostContent: React.FC<PostComponent> = ({ post }) => {
   const customRenderers: Renderer = {

@@ -1,8 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { MongoClient, ObjectId } from 'mongodb';
 
-const mongoUrl =
-  'mongodb+srv://elifipek:588647elka@cluster0.bmoow.mongodb.net/blogdb?retryWrites=true&w=majority';
+const connectionUrl = `mongodb+srv://${process.env.mongodb_username}:${process.env.mongodb_password}@${process.env.mongodb_clustername}.bmoow.mongodb.net/${process.env.mongodb_database}?retryWrites=true&w=majority`;
 
 export interface Contact {
   id?: ObjectId;
@@ -43,7 +42,7 @@ const handler = async (
 
     let client;
     try {
-      client = await MongoClient.connect(mongoUrl);
+      client = await MongoClient.connect(connectionUrl);
     } catch (error) {
       res.status(500).json({ message: 'Could not connect to database.' });
       return;
