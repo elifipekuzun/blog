@@ -1,13 +1,25 @@
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useState, useEffect } from 'react';
 import styles from './contact-form.module.css';
+import { ResData } from '../../pages/api/contact';
+import { Notification, Status } from '../ui/notification';
 
 export const ContactForm: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
+  const [requestStatus, setRequestStatus] = useState<Status>();
+  const [notificationMessage, setNotificationMessage] = useState<{
+    title: string;
+    message: string;
+  }>();
 
   const submitHandler = (event: FormEvent) => {
     event.preventDefault();
+    setRequestStatus(Status.pending);
+    setNotificationMessage({
+      title: 'Loading...',
+      message: 'Your message is sending...',
+    });
 
     fetch('/api/contact', {
       method: 'POST',
@@ -15,8 +27,38 @@ export const ContactForm: React.FC = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email, name, message }),
-    });
+    })
+      .then((res) => res.json())
+      .then((data: ResData) => {
+        if (data.message !== 'Success!') {
+          setRequestStatus(Status.error);
+          setNotificationMessage({ title: 'Error', message: data.message });
+          return;
+        }
+        setRequestStatus(Status.success);
+        setNotificationMessage({
+          title: 'Success!',
+          message: 'Your message is sent successfully!',
+        });
+        setEmail('');
+        setMessage('');
+        setName('');
+      })
+      .catch(console.log);
   };
+
+  useEffect(() => {
+    if (requestStatus === Status.error || requestStatus === Status.success) {
+      const timer = setTimeout(() => {
+        setRequestStatus(undefined);
+        setNotificationMessage(undefined);
+      }, 3000);
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [requestStatus]);
+
   return (
     <section className={styles.contact}>
       <h1>How can I help you?</h1>
@@ -56,6 +98,13 @@ export const ContactForm: React.FC = () => {
           <button>Send Message</button>
         </div>
       </form>
+      {requestStatus && (
+        <Notification
+          title={notificationMessage!.title}
+          message={notificationMessage!.message}
+          status={requestStatus}
+        />
+      )}
     </section>
   );
 };

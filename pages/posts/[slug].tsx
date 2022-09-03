@@ -3,6 +3,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { PostContent } from '../../components/posts/post-detail/post-content';
 import { PostComponent } from '../../data/models/Post';
 import { getPostData, getPostFiles } from '../../lib/posts-util';
+import Head from 'next/head';
 
 interface ContentParams extends ParsedUrlQuery {
   slug: string;
@@ -11,6 +12,10 @@ interface ContentParams extends ParsedUrlQuery {
 const PostDetailPage: NextPage<PostComponent> = ({ post }) => {
   return (
     <>
+      <Head>
+        <title>{post.title}</title>
+        <meta name="description" content={post.excerpt} />
+      </Head>
       <PostContent post={post} />
     </>
   );
